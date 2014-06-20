@@ -1,4 +1,4 @@
-package shaul.games.neworion.game;
+package shaul.games.neworion.engine;
 
 import shaul.games.neworion.engine.Clock;
 

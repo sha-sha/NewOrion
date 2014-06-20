@@ -8,6 +8,8 @@ import java.awt.image.BufferStrategy;
 
 public class RootCanvas extends Canvas {
 
+  private static final long serialVersionUID = 1L;
+
   private BufferStrategy strategy;
 
   public RootCanvas(int w, int h) {
