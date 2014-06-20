@@ -3,7 +3,6 @@ package shaul.games.neworion.game;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -12,12 +11,14 @@ import java.awt.geom.AffineTransform;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import shaul.games.neworion.engine.Canvas;
 import shaul.games.neworion.engine.Clock;
 import shaul.games.neworion.engine.DebugGraphicLayer;
 import shaul.games.neworion.engine.DrawableShape;
 import shaul.games.neworion.engine.Screen;
 import shaul.games.neworion.engine.ShapeDrawer;
 import shaul.games.neworion.engine.SystemClock;
+import shaul.games.neworion.engine.Texture;
 import shaul.games.neworion.engine.math.Vector2;
 
 public class Game implements Screen {
@@ -56,8 +57,10 @@ public class Game implements Screen {
   public void gameLoop() {
     long lastLoopTime = clock.getTimeMsec();
 
-    Image image = ResourceLoader.loadImage("res/alien.gif");
+    Texture image = DefaultResourceLoader.get().loadImage("res/alien.gif");
     AffineTransform tx = new AffineTransform();
+
+    DefaultCanvas engineCanvas = new DefaultCanvas();
 
     while (gameRunning) {
 
@@ -65,6 +68,7 @@ public class Game implements Screen {
       lastLoopTime = clock.getTimeMsec();
 
       Graphics2D g2d = canvas.initFrame();
+      engineCanvas.setGraphics(g2d);
 
       MouseEvent clickEvent = Input.get().getMouseClickEvent();
       if (clickEvent != null) {
@@ -73,7 +77,8 @@ public class Game implements Screen {
       }
 
       tx.rotate(Math.PI / 100);
-      g2d.drawImage(image, tx, null);
+      engineCanvas.drawImage(100, 100, image);
+      // g2d.drawImage(image, tx, null);
 
       DebugGraphicLayer.get().drawAll(new DefaultShaepDrawer(g2d), this, delta);
 
@@ -145,5 +150,21 @@ public class Game implements Screen {
     }
 
   }
+
+  private static class DefaultCanvas implements Canvas {
+
+    Graphics2D g;
+
+    public void setGraphics(Graphics2D g) {
+      this.g = g;
+    }
+
+    @Override
+    public void drawImage(int x, int y, Texture image) {
+      if (image instanceof DefaultTexture) {
+        ((DefaultTexture) image).draw(g, x, y);
+      }
+    }
+  };
 
 }
