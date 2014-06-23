@@ -18,9 +18,9 @@ public interface Screen {
 
   // Zoom getZoom();
 
-  int getX(Vector2 pos);
+  int getX(float x);
 
-  int getY(Vector2 pos);
+  int getY(float y);
 
   int getScaledSize(double size);
 

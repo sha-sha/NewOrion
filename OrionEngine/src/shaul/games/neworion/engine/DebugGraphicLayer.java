@@ -30,32 +30,42 @@ public class DebugGraphicLayer {
     ListIterator<Shape> it = shapes.listIterator();
     while (it.hasNext()) {
       Shape shape = it.next();
-      if (shape.expiration <= currentTime) {
+      if (shape.expiration <= currentTime && shape.expiration > 0) {
         it.remove();
-      } else if (shape.expiration <= currentTime + 1000) {
-        shapeDrawer.drawShape(shape.semiTransparentShape, screen);
       } else {
-        shapeDrawer.drawShape(shape.visibleShape, screen);
+        shapeDrawer.drawShape(shape.drawableShape, screen);
       }
     }
   }
 
-  public void addCircle(Vector2 position, double radius, int color,
-      long durationMSec) {
-    Shape shape = new Shape();
-    shape.visibleShape = new DrawableShape.Builder()
-        .setType(DrawableShape.Type.CIRCLE).setPosition(position)
-        .setRadius(radius).setColor(color).build();
-    shape.semiTransparentShape = shape.visibleShape.buildUpon()
-        .setOpacity(0.5f)
-        .build();
-    shape.expiration = currentTime + durationMSec;
-    shapes.add(shape);
+  public Shape addText(Vector2 position, String text, int color, long durationMSec) {
+    return addDrawableShape(new DrawableShape.Builder().setType(DrawableShape.Type.TEXT)
+        .setPosition(position).setText(text).setColor(color).build(), durationMSec);
   }
 
-  private static class Shape {
-    DrawableShape visibleShape;
-    DrawableShape semiTransparentShape;
-    long expiration;
+  public Shape addCircle(Vector2 position, double radius, int color, long durationMSec) {
+    return addDrawableShape(new DrawableShape.Builder().setType(DrawableShape.Type.CIRCLE)
+        .setPosition(position).setRadius(radius).setColor(color).build(), durationMSec);
+  }
+
+  public Shape addDrawableShape(DrawableShape drawableShape, long durationMSec) {
+    Shape shape = new Shape(drawableShape, durationMSec == 0 ? 0 : currentTime + durationMSec);
+    shapes.add(shape);
+    return shape;
+  }
+
+  public void removeShape(Shape shape) {
+    shapes.remove(shape);
+  }
+
+  public static class Shape {
+
+    public final DrawableShape drawableShape;
+    public final long expiration;
+
+    public Shape(DrawableShape drawableShape, long expiration) {
+      this.drawableShape = drawableShape;
+      this.expiration = expiration;
+    }
   }
 }

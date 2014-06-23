@@ -16,20 +16,25 @@ public class DefaultTexture implements Texture {
 
   public void draw(Graphics2D g, int x, int y) {
     AffineTransform tx = new AffineTransform();
-    tx.translate(x, x);
+    tx.translate(x, y);
+    g.drawImage(image, tx, null);
+  }
+
+  public void draw(Graphics2D g, int x, int y, double rotate) {
+    AffineTransform tx = new AffineTransform();
+    tx.translate(x, y);
+    // tx.rotate(rotate, getWidth() / 2, getHeight() / 2);
     g.drawImage(image, tx, null);
   }
 
   @Override
   public int getWidth() {
-    // TODO Auto-generated method stub
-    return 0;
+    return image.getWidth(null);
   }
 
   @Override
   public int getHeight() {
-    // TODO Auto-generated method stub
-    return 0;
+    return image.getHeight(null);
   }
 
 }

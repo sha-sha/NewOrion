@@ -4,7 +4,7 @@ import shaul.games.neworion.engine.math.Vector2;
 
 public final class DrawableShape {
   public enum Type {
-    CIRCLE
+    CIRCLE, TEXT
   };
 
   private final Vector2 pos;
@@ -12,10 +12,12 @@ public final class DrawableShape {
   private final double radius;
   private final int color;
   private final float opacity;
+  private final String text;
 
   private DrawableShape(Builder builder) {
     type = Precondition.checkNotNull(builder.type);
     pos = Precondition.checkNotNull(builder.pos);
+    text = builder.text;
     radius = builder.radius;
     color = builder.color;
     opacity = builder.opacity;
@@ -38,6 +40,10 @@ public final class DrawableShape {
     return radius;
   }
 
+  public String getText() {
+    return text;
+  }
+
   public int getColor() {
     return color;
   }
@@ -52,33 +58,44 @@ public final class DrawableShape {
     double radius;
     int color;
     float opacity = 1.0f;
+    private String text;
 
-    Builder setType(Type type) {
+    public Builder setType(Type type) {
       this.type = type;
       return this;
     }
 
-    Builder setPosition(Vector2 pos) {
+    public Builder setPosition(Vector2 pos) {
       this.pos = pos;
       return this;
     }
 
-    Builder setRadius(double radius) {
+    public Builder setPosition(float x, float y) {
+      this.pos = new Vector2(x, y);
+      return this;
+    }
+
+    public Builder setRadius(double radius) {
       this.radius = radius;
       return this;
     }
 
-    Builder setColor(int color) {
+    public Builder setColor(int color) {
       this.color = color;
       return this;
     }
 
-    Builder setOpacity(float opacity) {
+    public Builder setOpacity(float opacity) {
       this.opacity = opacity;
       return this;
     }
 
-    DrawableShape build() {
+    public Builder setText(String text) {
+      this.text = text;
+      return this;
+    }
+
+    public DrawableShape build() {
       return new DrawableShape(this);
     }
 

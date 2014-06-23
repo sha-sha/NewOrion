@@ -12,8 +12,14 @@ public class RootCanvas extends Canvas {
 
   private BufferStrategy strategy;
 
+  private int width;
+
+  private int height;
+
   public RootCanvas(int w, int h) {
-    setBounds(0, 0, 800, 600);
+    width = w;
+    height = h;
+    setBounds(0, 0, w, h);
   }
 
   public void init() {
@@ -44,7 +50,7 @@ public class RootCanvas extends Canvas {
   public Graphics2D initFrame() {
     Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
     g.setColor(Color.black);
-    g.fillRect(0, 0, 800, 600);
+    g.fillRect(0, 0, width, height);
     return g;
   }
 
