@@ -3,10 +3,11 @@ package shaul.games.neworion.game;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ListIterator;
+import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -17,14 +18,16 @@ import shaul.games.neworion.engine.DebugGraphicLayer;
 import shaul.games.neworion.engine.DrawableShape;
 import shaul.games.neworion.engine.DrawableShape.Type;
 import shaul.games.neworion.engine.FpsPlugin;
-import shaul.games.neworion.engine.GameObject;
 import shaul.games.neworion.engine.GameObjectsCollection;
 import shaul.games.neworion.engine.Screen;
 import shaul.games.neworion.engine.ScreenCanvas;
 import shaul.games.neworion.engine.ShapeDrawer;
 import shaul.games.neworion.engine.SystemClock;
 import shaul.games.neworion.engine.Texture;
+import shaul.games.neworion.engine.gameobject.GameObject;
+import shaul.games.neworion.engine.gameobject.PhysicObject;
 import shaul.games.neworion.engine.math.Vector2;
+import shaul.games.neworion.engine.physics.PhysicEngine;
 
 public class Game implements Screen {
   private boolean gameRunning;
@@ -62,31 +65,48 @@ public class Game implements Screen {
   }
 
   public void gameLoop() {
-    GameObjectsCollection gameObjects = new GameObjectsCollection();
+    PhysicEngine physicEngine = new PhysicEngine();
+    GameObjectsCollection gameObjects = new GameObjectsCollection(2);
     DrawableShape fpsText = new DrawableShape.Builder().setType(Type.TEXT)
         .setColor(Color.red.getRGB()).setPosition(10, 14).build();
     FpsPlugin fpsCalculator = new FpsPlugin(fpsText);
     long lastLoopTime = clock.getTimeMsec();
 
     Texture image = DefaultResourceLoader.get().loadImage("res/alien.gif");
+    Texture image2 = DefaultResourceLoader.get().loadImage("res/speedship.png");
+    Texture backGroundImage = DefaultResourceLoader.get().loadImage("res/space-background.jpg");
     double angle = 0.0;
 
     DefaultCanvas engineCanvas = new DefaultCanvas();
     DebugGraphicLayer.Shape fps = null;
     ScreenCanvas screenCanvas = new ScreenCanvas(engineCanvas, this);
 
+    GameObject spaceship = new GameObject();
+    spaceship.setImage(image2);
+    spaceship.setPosition(100, 100);
+    spaceship.setPhysicObject(new PhysicObject());
+    spaceship.getPhysicObject().velocity = new Vector2(0.08f, 0.0f);
+    gameObjects.add(spaceship, 1);
+
+    GameObject background = new GameObject();
+    background.setImage(backGroundImage);
+    gameObjects.add(background, 0);
+
+    Random random = new Random(100);
     int nextX = 30;
     int nextY = 30;
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 1000; i++) {
       GameObject gameObject = new GameObject();
-      gameObject.setxPosition(nextX);
-      gameObject.setyPosition(nextY);
-      nextX += 30;
+      gameObject.setPosition(nextX, nextY);
+      nextX += 60;
       if (nextX > 2 * getWidth()) {
-        nextX = 30;
-        nextY += 30;
+        nextX = 60;
+        nextY += 60;
       }
       gameObject.setImage(image);
+      gameObject.setPhysicObject(new PhysicObject());
+      gameObject.getPhysicObject().velocity = new Vector2((random.nextFloat() - 0.5f) / 10f,
+          (random.nextFloat() - 0.5f) / 10f);
       gameObjects.add(gameObject);
     }
 
@@ -102,22 +122,30 @@ public class Game implements Screen {
       MouseEvent clickEvent = Input.get().getMouseClickEvent();
       if (clickEvent != null) {
         // TODO: Should convert screen pos to game pos.
-        ListIterator<GameObject> iter = gameObjects.findByPosition(clickEvent.getX(),
-            clickEvent.getY());
-        if (iter != null) {
-          GameObject go = iter.previous();
-          go.setxPosition(go.getxPosition() + 10.0f);
+        GameObject go = gameObjects.findByPosition(clickEvent.getX(), clickEvent.getY());
+        if (go != null) {
+          go.setPosition(go.getxPosition() + 10.0f, go.getyPosition());
           Vector2 pos = new Vector2(go.getxPosition(), go.getyPosition());
           DebugGraphicLayer.get().addCircle(pos, 20.0, Color.red.getRGB(), 1000);
         }
       }
+
+      KeyEvent keyEvent = Input.get().getKeyEvent();
+      if (keyEvent != null) {
+        if (keyEvent.getKeyChar() == 'z') {
+
+        }
+      }
+
       if (fps != null) {
         DebugGraphicLayer.get().removeShape(fps);
       }
 
+      physicEngine.onUpdate(gameObjects, delta);
+
       gameObjects.draw(screenCanvas);
       angle += 0.03;
-      for (int i = 0; i < 10000; i++) {
+      for (int i = 0; i < 1; i++) {
         // screenCanvas.draw(new Vector2(30 + (i * 40) % 800, 30 + (i / 20) *
         // 40), image);
         // engineCanvas.drawImage(30 + (i * 40) % 800, 30 + (i / 20) * 40,

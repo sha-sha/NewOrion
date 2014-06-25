@@ -2,6 +2,7 @@ package shaul.games.neworion.game;
 
 import java.awt.Component;
 import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -17,10 +18,13 @@ public class Input implements SubSystem {
 
   private Component currentView;
   private final MouseHandler mouseHandler;
+  private final KeyInputHandler keyHandler;
   public MouseEvent lastMouseClickEvent;
+  public KeyEvent lastKeyEvent;
 
   public Input() {
     mouseHandler = new MouseHandler();
+    keyHandler = new KeyInputHandler();
   }
 
   @Override
@@ -42,14 +46,22 @@ public class Input implements SubSystem {
     return event;
   }
 
+  public KeyEvent getKeyEvent() {
+    KeyEvent event = lastKeyEvent;
+    lastKeyEvent = null;
+    return event;
+  }
+
   public void setView(Component view) {
     if (currentView != view) {
       if (currentView != null) {
+        currentView.removeKeyListener(keyHandler);
         currentView.removeMouseListener(mouseHandler);
       }
       currentView = view;
       if (currentView != null) {
         view.addMouseListener(mouseHandler);
+        view.addKeyListener(keyHandler);
       }
     }
   }
@@ -89,6 +101,10 @@ public class Input implements SubSystem {
 
   private class KeyInputHandler extends KeyAdapter {
 
+    @Override
+    public void keyTyped(KeyEvent keyEvent) {
+      lastKeyEvent = keyEvent;
+    }
   }
 
 }
